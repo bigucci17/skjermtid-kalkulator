@@ -29,22 +29,23 @@
   var ageChartInstance = null;
   var activityChartInstance = null;
   var comparisonChartInstance = null;
+  var supabaseClient = null;
 
-  /**
-   * Load statistics from Supabase RPC, fall back to defaults
-   * @returns {Promise<object>} stats data
-   */
+  function getClient() {
+    if (!supabaseClient && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+      supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    }
+    return supabaseClient;
+  }
+
   function loadStats() {
-    if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+    var client = getClient();
+    if (!client) {
       console.warn('Supabase not configured, using default stats');
       return Promise.resolve(DEFAULT_STATS);
     }
 
     try {
-      var client = window.supabase.createClient(
-        window.SUPABASE_URL,
-        window.SUPABASE_ANON_KEY
-      );
 
       return client
         .rpc('get_stats')

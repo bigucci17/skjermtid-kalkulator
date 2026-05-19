@@ -75,17 +75,22 @@
    * Silent fail — console.warn on errors
    * @param {object} data - form data with hoursPerDay, age, lifeExpectancy, breakdown?
    */
+  var supabaseClient = null;
+
+  function getClient() {
+    if (!supabaseClient && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+      supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+    }
+    return supabaseClient;
+  }
+
   function submitToSupabase(data) {
     try {
-      if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
+      var client = getClient();
+      if (!client) {
         console.warn('Supabase not configured, skipping submission');
         return;
       }
-
-      var client = window.supabase.createClient(
-        window.SUPABASE_URL,
-        window.SUPABASE_ANON_KEY
-      );
 
       var result = window.calculate(
         data.hoursPerDay,
@@ -160,29 +165,40 @@
     var resultsEl = document.getElementById('results');
     if (!resultsEl) return;
 
+    resultsEl.classList.remove('hidden');
     resultsEl.classList.add('visible');
 
     // Lost years
     var lostYearsSpan = resultsEl.querySelector('.result-lost-years span');
     if (lostYearsSpan) animateNumber(lostYearsSpan, result.lostYears);
+    var lostDesc = resultsEl.querySelector('[data-i18n="result_lost_years"]');
+    if (lostDesc && window.i18n) lostDesc.textContent = window.i18n.t('result_lost_years', { years: result.lostYears });
 
     // Free time hours + percentage
     var freeTimeSpan = resultsEl.querySelector('.result-free-time span');
     if (freeTimeSpan) animateNumber(freeTimeSpan, result.freeHoursPerDay);
+    var freeDesc = resultsEl.querySelector('[data-i18n="result_free_time"]');
+    if (freeDesc && window.i18n) freeDesc.textContent = window.i18n.t('result_free_time', { hours: result.freeHoursPerDay, percent: result.screenPercentOfFree });
 
     var percentSpan = resultsEl.querySelector('.result-free-time .percent');
-    if (percentSpan) animateNumber(percentSpan, result.screenPercentOfFree);
+    if (percentSpan) percentSpan.textContent = result.screenPercentOfFree;
 
     // Books & languages
     var booksSpan = resultsEl.querySelector('.result-books span');
     if (booksSpan) animateNumber(booksSpan, result.booksLost);
+    var booksDesc = resultsEl.querySelector('[data-i18n="result_books"]');
+    if (booksDesc && window.i18n) booksDesc.textContent = window.i18n.t('result_books', { count: result.booksLost });
 
     var languagesSpan = resultsEl.querySelector('.result-languages span');
     if (languagesSpan) animateNumber(languagesSpan, result.languagesLost);
+    var langsDesc = resultsEl.querySelector('[data-i18n="result_languages"]');
+    if (langsDesc && window.i18n) langsDesc.textContent = window.i18n.t('result_languages', { count: result.languagesLost });
 
     // Saved years (reduce by 1h)
     var savedSpan = resultsEl.querySelector('.result-saved span');
     if (savedSpan) animateNumber(savedSpan, result.savedYears);
+    var savedDesc = resultsEl.querySelector('[data-i18n="result_reduce_saved"]');
+    if (savedDesc && window.i18n) savedDesc.textContent = window.i18n.t('result_reduce_saved', { years: result.savedYears });
 
     renderStackedBar(result);
   }
@@ -198,10 +214,10 @@
     barEl.innerHTML = '';
 
     var segments = [
-      { label: 'Søvn',  value: result.sleepYears,  color: '#4488ff' },
-      { label: 'Jobb',  value: result.workYears,   color: '#ffaa44' },
-      { label: 'Skjerm', value: result.screenYears, color: '#ff4444' },
-      { label: 'Fritid', value: result.freeYears,   color: '#44ff88' }
+      { key: 'bar_sleep',   value: result.sleepYears,   color: '#4488ff' },
+      { key: 'bar_work',    value: result.workYears,    color: '#ffaa44' },
+      { key: 'bar_screen',  value: result.screenYears,  color: '#ff4444' },
+      { key: 'bar_free',    value: result.freeYears,    color: '#44ff88' }
     ];
 
     var total = 0;
@@ -216,7 +232,8 @@
       div.className = 'bar-segment';
       div.style.background = seg.color;
       div.style.width = ((seg.value / total) * 100) + '%';
-      div.textContent = seg.label + ' ' + seg.value;
+      var label = window.i18n ? window.i18n.t(seg.key) : seg.key;
+      div.textContent = label + ' ' + seg.value;
       barEl.appendChild(div);
     }
   }
