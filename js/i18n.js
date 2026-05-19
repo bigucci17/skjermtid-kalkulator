@@ -59,6 +59,8 @@ const translations = {
     // Video page
     video_title: 'Hva betyr skjermtid for deg?',
     video_subtitle: 'Reflekter over din egen skjermtid med disse sporsmalene.',
+    video_questions: 'Intervjusporsmal',
+    video_placeholder: 'Video kommer her',
     video_q1: 'Hva er det forste du gjor nar du vakner?',
     video_q2: 'Hvor mye av fritiden din er virkelig fri?',
     video_q3: 'Nar var sist du tok en pause fra skjermen?',
@@ -122,6 +124,8 @@ const translations = {
     // Video page
     video_title: 'What does screen time mean to you?',
     video_subtitle: 'Reflect on your own screen time with these questions.',
+    video_questions: 'Interview Questions',
+    video_placeholder: 'Video coming soon',
     video_q1: 'What is the first thing you do when you wake up?',
     video_q2: 'How much of your free time is truly free?',
     video_q3: 'When was the last time you took a break from screens?',
