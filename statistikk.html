@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skjermtidsstatistikk</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="header">
+    <div class="logo">Skjermtid</div>
+    <div class="nav-links">
+      <a href="/" data-i18n="nav_calculator">Kalkulator</a>
+      <a href="/statistikk" class="active" data-i18n="nav_stats">Statistikk</a>
+      <a href="/video" data-i18n="nav_video">Video</a>
+    </div>
+    <button class="lang-toggle" id="lang-toggle">EN</button>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="glow-orb glow-1"></div>
+      <div class="glow-orb glow-2"></div>
+      <div class="hero-content">
+        <h1 data-i18n="stats_title">Skjermtid i Norge</h1>
+      </div>
+    </section>
+
+    <section class="stats-overview">
+      <div class="stat-card fade-in">
+        <span class="stat-number" id="stat-avg">—</span>
+        <p data-i18n="stats_avg">Gjennomsnittlig skjermtid per dag: {hours} timer</p>
+      </div>
+      <div class="stat-card fade-in">
+        <span class="stat-number" id="stat-total">—</span>
+        <p data-i18n="stats_total">Total skjermtid i Norge per dag: {hours} millioner timer</p>
+      </div>
+      <div class="stat-card fade-in">
+        <span class="stat-number" id="stat-over-4h">—</span>
+        <p data-i18n="stats_over_4h">{percent}% bruker mer enn 4 timer per dag</p>
+      </div>
+    </section>
+
+    <section class="charts glass-card fade-in">
+      <h3 data-i18n="stats_age_chart">Skjermtid etter alder</h3>
+      <canvas id="age-chart"></canvas>
+    </section>
+
+    <section class="charts glass-card fade-in">
+      <h3 data-i18n="stats_activity_chart">Skjermtid etter aktivitet</h3>
+      <canvas id="activity-chart"></canvas>
+    </section>
+
+    <section class="charts glass-card fade-in" id="comparison-section" style="display:none;">
+      <h3 id="comparison-title"></h3>
+      <canvas id="comparison-chart"></canvas>
+    </section>
+  </main>
+
+  <script>
+    window.SUPABASE_URL = '';
+    window.SUPABASE_ANON_KEY = '';
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/stats.js"></script>
+  <script src="/js/animations.js"></script>
+</body>
+</html>
