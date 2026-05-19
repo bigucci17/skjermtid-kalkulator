@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/statistikk", "destination": "/statistikk.html" },
+    { "source": "/video", "destination": "/video.html" }
+  ]
+}

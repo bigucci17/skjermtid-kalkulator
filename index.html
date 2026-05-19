@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skjermtidskalkulator</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="header">
+    <div class="logo">Skjermtid</div>
+    <div class="nav-links">
+      <a href="/" data-i18n="nav_calculator">Kalkulator</a>
+      <a href="/statistikk" data-i18n="nav_stats">Statistikk</a>
+      <a href="/video" data-i18n="nav_video">Video</a>
+    </div>
+    <button class="lang-toggle" id="lang-toggle">EN</button>
+  </nav>
+  <main>
+    <section class="hero">
+      <div class="glow-orb glow-1"></div>
+      <div class="glow-orb glow-2"></div>
+      <div class="hero-content">
+        <h1 data-i18n="hero_title">Hvor mye av livet ditt brukes pa skjerm?</h1>
+        <p class="subtitle" data-i18n="hero_subtitle">Beregn din skjermtid og se hva du kunne brukt tiden pa i stedet.</p>
+      </div>
+    </section>
+
+    <section class="calculator glass-card">
+      <form id="calc-form">
+        <div class="input-group">
+          <label for="hours" data-i18n="input_hours">Skjermtid per dag (timer)</label>
+          <div class="slider-row">
+            <input type="range" id="hours" min="0" max="16" step="0.5" value="4">
+            <span class="slider-value" id="hours-value">4</span>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <div class="input-group">
+            <label for="age" data-i18n="input_age">Din alder</label>
+            <input type="number" id="age" min="1" max="120" value="25">
+          </div>
+          <div class="input-group">
+            <label for="life-exp" data-i18n="input_life_exp">Forventet levealder</label>
+            <input type="number" id="life-exp" min="1" max="130" value="81">
+          </div>
+        </div>
+
+        <button type="button" class="btn-secondary" id="breakdown-toggle" data-i18n="btn_breakdown">Bryt ned skjermtiden</button>
+
+        <div class="breakdown-fields hidden" id="breakdown-fields">
+          <div class="input-group">
+            <label data-i18n="label_social">Sosiale medier</label>
+            <input type="range" class="breakdown-slider" data-field="socialMedia" min="0" max="16" step="0.5" value="0">
+            <span class="slider-value breakdown-val">0</span>
+          </div>
+          <div class="input-group">
+            <label data-i18n="label_gaming">Gaming</label>
+            <input type="range" class="breakdown-slider" data-field="gaming" min="0" max="16" step="0.5" value="0">
+            <span class="slider-value breakdown-val">0</span>
+          </div>
+          <div class="input-group">
+            <label data-i18n="label_streaming">Streaming/video</label>
+            <input type="range" class="breakdown-slider" data-field="streaming" min="0" max="16" step="0.5" value="0">
+            <span class="slider-value breakdown-val">0</span>
+          </div>
+          <div class="input-group">
+            <label data-i18n="label_school">Skole/jobb</label>
+            <input type="range" class="breakdown-slider" data-field="schoolWork" min="0" max="16" step="0.5" value="0">
+            <span class="slider-value breakdown-val">0</span>
+          </div>
+          <div class="input-group">
+            <label data-i18n="label_other">Annet</label>
+            <input type="range" class="breakdown-slider" data-field="other" min="0" max="16" step="0.5" value="0">
+            <span class="slider-value breakdown-val">0</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" data-i18n="btn_calculate">Beregn</button>
+      </form>
+    </section>
+
+    <section class="results hidden" id="results">
+      <div class="result-card result-lost-years">
+        <span>0</span>
+        <p data-i18n="result_lost_years">Du vil bruke X ar av livet ditt foran en skjerm</p>
+      </div>
+      <div class="result-card result-free-time">
+        <span>0</span><p> — <span class="percent">0</span>%</p>
+        <p data-i18n="result_free_time">Etter sonn og jobb har du Y timer fritid per dag</p>
+      </div>
+      <div class="result-row">
+        <div class="result-mini result-books"><span>0</span><p data-i18n="result_books">Boker du kunne lest</p></div>
+        <div class="result-mini result-languages"><span>0</span><p data-i18n="result_languages">Sprak du kunne lart</p></div>
+      </div>
+      <div class="result-reduce">
+        <h3 data-i18n="result_reduce">Hva om du reduserer med 1 time?</h3>
+        <p class="result-saved" data-i18n="result_reduce_saved"><span>0</span> ar tilbake</p>
+      </div>
+      <div id="stacked-bar" class="stacked-bar"></div>
+      <a href="/statistikk" class="cta-link" data-i18n="cta_stats">Se hvordan andre bruker skjermen →</a>
+    </section>
+  </main>
+
+  <script>
+    window.SUPABASE_URL = '';
+    window.SUPABASE_ANON_KEY = '';
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/calculator.js"></script>
+  <script src="/js/animations.js"></script>
+  <script>
+    const hoursSlider = document.getElementById('hours');
+    const hoursValue = document.getElementById('hours-value');
+    hoursSlider.addEventListener('input', () => hoursValue.textContent = hoursSlider.value);
+
+    document.getElementById('breakdown-toggle').addEventListener('click', () => {
+      document.getElementById('breakdown-fields').classList.toggle('hidden');
+    });
+
+    const breakdownSliders = document.querySelectorAll('.breakdown-slider');
+    breakdownSliders.forEach(s => {
+      const val = s.parentElement.querySelector('.breakdown-val');
+      s.addEventListener('input', () => {
+        val.textContent = s.value;
+        const total = Array.from(breakdownSliders).reduce((sum, sl) => sum + parseFloat(sl.value), 0);
+        hoursSlider.value = Math.min(16, total);
+        hoursValue.textContent = total;
+      });
+    });
+
+    document.getElementById('calc-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = {
+        hoursPerDay: parseFloat(hoursSlider.value),
+        age: parseInt(document.getElementById('age').value),
+        lifeExpectancy: parseInt(document.getElementById('life-exp').value)
+      };
+
+      const breakdownEl = document.getElementById('breakdown-fields');
+      if (!breakdownEl.classList.contains('hidden')) {
+        data.breakdown = {};
+        document.querySelectorAll('.breakdown-slider').forEach(s => {
+          data.breakdown[s.dataset.field] = parseFloat(s.value);
+        });
+      }
+
+      const result = window.calculate(data.hoursPerDay, data.age, data.lifeExpectancy);
+      window.renderResults(result);
+      window.submitToSupabase(data);
+      localStorage.setItem('lastCalcHours', data.hoursPerDay);
+    });
+  </script>
+</body>
+</html>
